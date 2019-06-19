@@ -1,0 +1,120 @@
+<!Doctype html>
+<html>
+<head>
+<title>GNB_ajax</title>
+<link rel="stylesheet" href="css/style.css">
+<script>
+window.addEventListener("load", function(){
+	var wrap=null;
+	var nav=null;
+	var gnb=null;
+	var TitleLi=null;
+	var Depth2Ul=null;
+	var Depth2Li=null;
+	
+	function CreateGnb(className){
+		wrap=document.querySelector(className);
+		nav=document.createElement("nav");
+		gnb=document.createElement("ul");
+		wrap.appendChild(nav);
+		nav.appendChild(gnb);
+	}
+	CreateGnb(".wrap");
+	
+	var request=new XMLHttpRequest();
+	var requestURL="data/navigation.json";
+	request.open("GET",requestURL,true);
+	request.responseType="json";
+	request.send();
+	request.addEventListener("load", function(){
+		var data=request.response;
+		for(title in data){
+			TitleLi=document.createElement("li");
+			TitleLi.innerHTML="<a href='#'>"+title+"</a>";	
+			Depth2Ul=document.createElement("ul");
+			gnb.appendChild(TitleLi);
+			TitleLi.appendChild(Depth2Ul);
+			for(sub in data[title]){
+				Depth2Li=document.createElement("li");
+				Depth2Li.innerHTML="<a href='#'>"+data[title][sub]+"</a>"
+				Depth2Ul.appendChild(Depth2Li);
+			}
+		}
+		
+		var TitleList=gnb.children;
+		var DepthUlList=document.querySelectorAll("nav ul ul");
+		var DepthLiList=document.querySelectorAll("nav ul ul li");
+		var DepthLiLast=document.querySelectorAll("nav ul li:last-child");
+		var DepthLiLastest=gnb.lastChild.lastChild.lastChild;
+		
+	/* Function */
+	/* Function GNB OPEN, CLOSE */
+		function GnbOpen(){
+			gnb.parentElement.style.height="260px";
+			for(j=0; j<DepthUlList.length; j++){
+				DepthUlList[j].style.display="block";
+			}
+		}
+		function GnbClose(){
+			gnb.parentElement.style.height="60px";
+			for(j=0; j<DepthUlList.length; j++){
+				DepthUlList[j].style.display="none";
+			}
+		}	
+	/* Function TitleHover */
+		function TitleEnter(){
+			for(j=0; j<TitleList.length; j++){
+				if(j==this.index)TitleList[j].classList.add("on");
+			}
+		}
+		function TitleLeave(){
+			for(j=0; j<TitleList.length; j++){
+				if(j==this.index) TitleList[j].classList.remove("on");
+			}
+		}
+	/* Function DepthOn, Off */
+		function DepthOn(){
+			this.lastChild.classList.add("on");
+		}
+		function DepthOff(){
+			this.lastChild.classList.remove("on");
+		}
+		
+		
+	/* Title Event */
+		gnb.addEventListener("mouseenter", GnbOpen);
+		gnb.addEventListener("mouseleave", GnbClose);
+		for(var i=0; i<TitleList.length; i++){
+			TitleList[i].style.width=100/TitleList.length+"%";
+			TitleList[i].index=i;
+			TitleList[i].firstElementChild.index=i;
+			DepthLiLast[i].index=i;
+			/* Title MouseHover : mouseenter, mouseleave */
+			TitleList[i].addEventListener("mouseenter", TitleEnter);
+			TitleList[i].addEventListener("mouseleave", TitleLeave);
+			/* Focus : GnbOpen */
+			TitleList[i].firstElementChild.addEventListener("focusin", TitleEnter);
+			TitleList[i].firstElementChild.addEventListener("focusin", GnbOpen);
+			DepthLiLast[i].addEventListener("focusout", TitleLeave);
+		}
+		
+	/* Depth Event */
+		for(var i=0; i<DepthLiList.length; i++){
+			/* Depth MouseHover : mouseenter, mouseleave */
+			DepthLiList[i].addEventListener("mouseenter", DepthOn);
+			DepthLiList[i].addEventListener("mouseleave", DepthOff);
+			/* Depth Focus */
+			DepthLiList[i].addEventListener("focusin", DepthOn);
+			DepthLiList[i].addEventListener("focusout", DepthOff);
+		}
+		DepthLiLastest.addEventListener("focusout", GnbClose);
+	});
+});
+</script>
+</head>
+
+<body>
+<div class="wrap">
+</div>
+</body>
+</html>
